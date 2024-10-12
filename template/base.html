@@ -8,6 +8,15 @@
 </head>
 <body>
     {% include 'nav.html' %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class='alert alert-warning'>
+            {% for message in messages %}
+            <li class=''>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     {% block content %} {% endblock %}
 
    
