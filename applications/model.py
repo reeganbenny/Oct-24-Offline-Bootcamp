@@ -1,5 +1,5 @@
 from applications.database import db
-
+# from datetime import datetime
 # cust = Customer(address= 'asdf',
 #          phason ='saf')
 # user = User(username='admin',
@@ -16,6 +16,7 @@ class User(db.Model):
     image_file = db.Column(db.String(20), nullable=True, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
     approved = db.Column(db.Boolean(), default=False)
+    # created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     roles = db.relationship('Role', secondary='user_role', backref=db.backref('users', lazy=True))
     customer_dets = db.relationship('Customer', backref='user', lazy=True, uselist=False)
