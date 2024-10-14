@@ -41,13 +41,11 @@ def login():
             flash('Invalid password')
             return redirect(url_for('login'))
 
-
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     session.pop('role', None)
     return redirect(url_for('home'))
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def register():
@@ -126,8 +124,10 @@ def register():
         image_file_path = None
         if image:
             image_file_path = 'images/' + image.filename
-            # absoulte_path = '/static/' + file_path
-            image.save(image_file_path)
+            absoulte_path = 'static/' + image_file_path
+            image.save(absoulte_path)
+
+        # url_for('static', filename=image_file_path)
 
         approved = True
         if role == 'store_manager':
@@ -143,7 +143,23 @@ def register():
         db.session.commit()
         flash('User created successfully')
         return redirect(url_for('login'))
-    
+
+@app.route('/user_approvals')
+def user_approvals():
+    approved_users = User.query.filter_by(approved=True).all()
+    approved_store_managers = []
+    customers = []
+    for user in  approved_users:
+        if 'store_manager' in [role.name for role in user.roles]:
+            approved_store_managers.append(user)
+        if 'customer' in [role.name for role in user.roles]:
+            customers.append(user)
+
+    approval_requests = User.query.filter_by(approved=False).all()
+    return render_template('all_user_details.html', 
+                           approved_store_managers=approved_store_managers,
+                           customers=customers, 
+                           approval_requests=approval_requests)
 
 @app.route('/add_category', methods=['GET', 'POST'])
 def add_category():
