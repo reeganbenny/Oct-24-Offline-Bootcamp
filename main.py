@@ -2,6 +2,7 @@ from flask import Flask, render_template, session
 from applications.database import db
 from applications.config import Config
 from applications.model import *
+from flask import jsonify
 
 def create_app():
     app = Flask(__name__,template_folder='template')
@@ -45,6 +46,20 @@ def create_app():
 app = create_app()
 
 from applications.routes import *
+
+
+#api using any external framework
+@app.route('/api_category')
+def dummy_api():
+    categories = Categories.query.all()
+    response = []
+    for category in categories:
+        response.append({'id':category.id,
+                        'name':category.name,
+                        'description':category.description})
+    return jsonify(response)
+
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

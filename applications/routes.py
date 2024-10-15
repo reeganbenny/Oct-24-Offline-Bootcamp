@@ -161,11 +161,111 @@ def user_approvals():
                            customers=customers, 
                            approval_requests=approval_requests)
 
+
+# /approve_user/1
+# /approve_user/2
+@app.route('/approve_user/<int:user_id>')
+def approve_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    # user = User.query.get(user_id)  -- when querying by primary key
+    if not user:
+        flash('User not found')
+        return redirect(url_for('user_approvals'))
+    
+    user.approved = True
+    db.session.commit()
+    flash('User approved successfully')
+    return redirect(url_for('user_approvals'))
+
+# @app.route('/reject_user/<int:user_id>/user/<string:role>') -- multiple parameters possible
+@app.route('/reject_user/<int:user_id>')
+def reject_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        flash('User not found')
+        return redirect(url_for('user_approvals'))
+    
+    db.session.delete(user)
+    db.session.commit()
+
+# @app.route('/delete_user/<int:user_id>')
+# def delete_user(user_id):
+#     user = User.query.filter_by(id=user_id).first()
+#     if not user:
+#         flash('User not found')
+#         return redirect(url_for('user_approvals'))
+    
+#     db.session.delete(user)
+#     db.session.commit()
+
+#     flash('User rejected successfully')
+#     return redirect(url_for('user_approvals'))
+
 @app.route('/add_category', methods=['GET', 'POST'])
 def add_category():
-    return render_template('add_category.html')
+    if request.method == 'GET':
+        return render_template('add_category.html')
     
-                    
+    if request.method == 'POST':
+        category_name = request.form.get('category_name', None)
+        description = request.form.get('description', None)
+
+        # Data Validation
+        if not category_name:
+            flash('Category Name is required')
+            return redirect(url_for('add_category'))
+        
+        category = Categories.query.filter_by(name=category_name).first()
+        if category:
+            flash('Category already exists')
+            return redirect(url_for('add_category'))
+        
+        if not description:
+            flash('Description is required')
+            return redirect(url_for('add_category'))
+        
+        try: 
+            category = Categories(name=category_name, 
+                                  description=description)
+            db.session.add(category)
+            db.session.commit()
+            flash('Category added successfully')
+            return redirect(url_for('add_category'))
+        except Exception as e:
+            # db.session.rollback()
+            flash(f'Error while adding category: {e}')
+            return redirect(url_for('add_category'))
+    
+@app.route('/view_categories')
+def view_categories():
+    categories = Categories.query.all()
+    return render_template('categoryView.html', categories=categories)
+
+@app.route('/edit_category/<int:category_id>', methods=['POST'])
+def edit_category(category_id):
+    category = Categories.query.filter_by(id=category_id).first()
+    if not category:
+        flash('Category not found')
+        return redirect(url_for('view_categories'))
+    
+    new_category_name = request.form.get('category_name', None)
+    new_description = request.form.get('description', None)
+
+    # Data Validation
+    cat_check = Categories.query.filter_by(name=new_category_name).first()
+    if cat_check:
+        flash('Category already exists')
+        return redirect(url_for('view_categories'))
+    
+    if new_category_name:
+        category.name = new_category_name
+
+    if new_description:
+        category.description = new_description
+
+    db.session.commit()
+    flash('Category updated successfully')
+    return redirect(url_for('view_categories'))
                     
         
 

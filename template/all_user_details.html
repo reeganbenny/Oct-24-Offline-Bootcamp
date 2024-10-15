@@ -50,8 +50,8 @@
                         {{user.image_file}}
                         <td><img src="{{url_for('static', filename=user.image_file)}}" alt="Image" width="50" height="50"></td>
                         <td>
-                            <a href="#" class="btn btn-primary">Accept</a>
-                            <a href="#" class="btn btn-danger">Reject</a>
+                            <a href={{url_for('approve_user', user_id = user.id)}} class="btn btn-primary">Accept</a>
+                            <a href={{url_for('reject_user',user_id = user.id)}} class="btn btn-danger">Reject</a>
                         </td>
                     </tr>
                 {% endfor %}
