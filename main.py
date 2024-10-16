@@ -4,10 +4,14 @@ from applications.config import Config
 from applications.model import *
 from flask import jsonify
 
+from flask_restful import Api, Resource
+
 def create_app():
     app = Flask(__name__,template_folder='template')
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     app.config.from_object(Config)
+
+    api = Api(app) #--- used to create an api
 
     db.init_app(app)
 
@@ -41,24 +45,43 @@ def create_app():
         
 
 
-    return app
+    return app, api  #  api we are returning
 
-app = create_app()
+app, api = create_app()
 
 from applications.routes import *
 
 
-#api using any external framework
-@app.route('/api_category')
-def dummy_api():
-    categories = Categories.query.all()
-    response = []
-    for category in categories:
-        response.append({'id':category.id,
-                        'name':category.name,
-                        'description':category.description})
-    return jsonify(response)
+# #api using any external framework
+# @app.route('/api_category')
+# def dummy_api():
+#     categories = Categories.query.all()
+#     response = []
+#     for category in categories:
+#         response.append({'id':category.id,
+#                         'name':category.name,
+#                         'description':category.description})
+#     return jsonify(response)
 
+
+
+# using external framework - flask_restful
+
+class DummyAPI(Resource):
+    def get(self):
+        category = Categories.query.all()
+        response = []
+        for cat in category:
+            response.append({'id':cat.id,
+                            'name':cat.name,
+                            'description':cat.description})
+        return jsonify(response)
+
+    def post(self):
+        pass
+
+
+api.add_resource(DummyAPI, '/api_category')
     
 
 if __name__ == '__main__':

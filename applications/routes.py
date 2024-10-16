@@ -267,7 +267,49 @@ def edit_category(category_id):
     flash('Category updated successfully')
     return redirect(url_for('view_categories'))
                     
+@app.route('/search')
+def search():
+    search_term = request.form.get('search', None)
+
+    if not search_term:
+        flash('Search term is required')
+        return redirect(url_for('home'))
+    
+    # Indian fruits
+
+    # %frui%  -- like
+
+    # __frui
+
+    categories = Categories.query.filter(Categories.name.like(f'%{search_term}%')).all()
+    products = Products.query.filter(Products.name.like(f'%{search_term}%')).all()
+
+    return render_template('search.html', categories=categories, products=products)
+
+
+@app.route('/display_summary_stats')
+def summary_stats():
+    import pandas
+    import matplotlib.pyplot as plt
+    categories_count = len(Categories.query.all())
+    products_count = len(Products.query.all())
+
+    orders = Order.query.all()
+    output = []
+    for order in orders:
+        output.append({'order_date': order.order_date,
+                       'total_amount': order.total_amount})
         
+    # -- Convert the list of dictionaries to pandas dataframe
+    # -- use matplotlib to plot the graph
+    # -- save the graph image
+    # -- path of the image
+
+    # -- html -- use img tag to plot the graphs
+    
+        
+    
+
 
             
 
